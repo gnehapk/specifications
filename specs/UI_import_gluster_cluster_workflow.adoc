@@ -1,0 +1,197 @@
+= Import cluster workflow
+
+The intent of import cluster workflow is to provide a mechanism to add a gluster storage cluster into tendrl for management.
+
+
+== Problem description
+
+This specification describes import cluster workflow which is a mechanism to add an gluster storage cluster into tendrl for management.
+
+== Use Cases
+
+This addresses the use case of importing existing gluster clusters into tendrl for management.
+
+The workflow is as follows:
+
+* API will provide the list of nodes and the clusters available for import to the Tendrl.
+
+* User will click on the import button for the cluster, he wants to import.
+
+* A popup will be opened for it.
+
+* UI will filter the available nodes for importing the cluster.
+
+* The pop will list down the available nodes and a checkbox for enabling/disabling the cluster wide volume profiling.
+
+* Each node's name and IP address will be show. 
+
+* User can checked/unchecked if he wants to enable/disable the volume profiling.
+
+* All the available nodes will participate in the import cluster workflow.
+
+* User clicks the import button form the popup to begin the import operation.
+
+* Success message will be shown on the popup once import operation successfully started.
+
+* Clicking on cancel button will take the user to cluster list page.
+
+== Proposed change
+
+* Create a modal for displaying the import details for the cluster.
+* Create a factory which will call the API for getting node list and importing the cluster.
+* Create a store to have mapping between API property name and UI variable and can do any data manipulation for the flow on the data send from factory.
+* Show total count of nodes present in a gluster cluster.
+
+Tendrl API related changes:
+
+* Get API call for getting node list.
+
+* POST API call for importing cluster
+
+=== Alternatives
+
+None
+
+=== Data model impact:
+
+See 'Impacted Modules' section where all the details are populated.
+
+=== Impacted Modules:
+
+==== Tendrl API impact:
+
+Import cluster flow requires the below APIs to be exposed:
+
+* API to Get the node list
+
+----
+
+GET /1.0/GetNodeList/
+
+Sample Response:
+
+{
+"nodes": [{
+            "status":"UP",
+            "machine_id":"5efe975cef3444ba8b475b6ee979acd3",
+            "hash":"c710d1f5f047e5a5a5375ffd98fe577f",
+            "fqdn":"dhcp41-166.lab.eng.blr.redhat.com",
+            "node_id":"5c751044-4a06-4814-9123-9a1183facfec",
+            "tags":"[\"tendrl/node_5c751044-4a06-4814-9123-9a1183facfec\", \"tendrl/integration/35d36a1a-fbeb-48d9-9e81-fe12339d0c58\", \"tendrl/node\", \"detected_cluster/beef9d0a-0d18-4522-bc37-3aa2730b24c7\", \"tendrl/integration/gluster\", \"gluster/server\"]",
+            "networks":{
+                "eth0":{
+                    "driver_modules":"virtio_net",
+                    "driver":"virtio_net",
+                    "ipv6":"[\"fe80::21a:4aff:fef7:2303%eth0\", \"2620:52:0:4628:21a:4aff:fef7:2303\"]",
+                    "model":"Ethernet network interface",
+                    "interface_id":"usDW.ndpeucax6V1",
+                    "subnet":"10.70.40.0/22",
+                    "sysfs_id":"/class/net/eth0",
+                    "ipv4":"[\"10.70.41.166\"]",
+                    "interface":"\"eth0\"",
+                    "interface_type":"network interface",
+                    "netmask":"[\"255.255.252.0\"]",
+                    "link_detected":"yes",
+                    "status":"up",
+                    "hash":"1628ca7df990711ef96f2dc1f8a48e22",
+                    "device_link":"/devices/pci0000",
+                    "updated_at":"2017-07-17 18:30:47.574604+00:00",
+                    "drive":"",
+                    "hw_address":"00"
+                }
+            },
+            "tendrlcontext":{
+                "hash":"85f0ce0bceda3612471ed1ef87fbd6ee",
+                "sds_version":"11.2.0",
+                "updated_at":"2017-07-17 18:42:52.935490+00:00",
+                "sds_name":"gluster",
+                "cluster_name":"gluster",
+                "cluster_id":"beef9d0a-0d18-4522-bc37-3aa2730b24c7",
+                "integration_id":"35d36a1a-fbeb-48d9-9e81-fe12339d0c58"
+            },
+            cpu: {..},
+            os: {..},
+            memory: {..},
+            localstorage: {..},
+            stats: {..}
+        }],
+    "clusters":[{
+        "sds_version": "4.5v",
+        "sds_name": "gluster",
+        cluster_id: beef9d0a-0d18-4522-bc37-3aa2730b24c7",
+        "node_ids": ["5c751044-4a06-4814-9123-9a1183facfec"]
+    }]
+}
+
+----
+
+* API to import gluster cluster
+
+----
+
+POST /1.0/ImportCluster
+
+Sample Request:
+
+{
+    "node_ids":["5c751044-4a06-4814-9123-9a1183facfec"], 
+    "sds_type":"gluster"
+}
+
+----
+
+==== Notifications/Monitoring impact:
+
+==== Tendrl/common impact:
+
+==== Tendrl/node_agent impact:
+
+==== Sds integration impact:
+
+=== Security impact:
+None.
+
+=== Other end user impact:
+
+User gets a set of APIs for import cluster operation.
+
+=== Performance impact:
+None.
+
+=== Other deployer impact:
+None.
+
+=== Developer impact:
+None.
+
+== Implementation:
+
+* Name, Cluster Id, sds version, sds name, host names, host IP properties will be taken from the API response to display it on the import cluster view.
+
+=== Assignee(s):
+
+Primary assignee:
+  gnehapk
+
+Other contributors:
+  a2batic
+
+=== Work Items:
+
+https://github.com/Tendrl/specifications/issues/183
+
+== Dependencies:
+
+None
+
+== Testing:
+
+* Import gluster cluster, check whether the cluster is imported with all the objects
+
+== Documentation impact:
+
+None
+
+== References:
+
+https://github.com/Tendrl/specifications/issues/183
